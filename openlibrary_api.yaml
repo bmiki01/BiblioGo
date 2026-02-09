@@ -1,0 +1,104 @@
+openapi: 3.0.0
+info:
+  title: OpenLibrary API
+  version: 1.0.0
+  description: |
+    Ez a dokumentáció az OpenLibrary API felhasználásával készült könyvkereső alkalmazás hálózati hívásait írja le.
+
+servers:
+  - url: https://openlibrary.org
+
+paths:
+  /search.json:
+    get:
+      summary: Könyvek keresése kulcsszó alapján
+      description: |
+        Kulcsszavas keresés a könyvek között. A 'q' query paraméterrel adható meg a keresett kifejezés (pl. cím, szerző).
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+          description: A keresett kulcsszó (pl. könyvcím vagy szerző neve)
+      responses:
+        '200':
+          description: Sikeres válasz könyvek listájával
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  numFound:
+                    type: integer
+                    description: Találatok száma
+                  docs:
+                    type: array
+                    description: Talált könyvek listája
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                          description: A könyv egyedi azonosítója (pl. /works/OL12345W)
+                        title:
+                          type: string
+                          description: Könyv címe
+                        author_name:
+                          type: array
+                          items:
+                            type: string
+                          description: Szerző(k) neve(i)
+                        first_publish_year:
+                          type: integer
+                          description: Első megjelenés éve
+                        cover_i:
+                          type: integer
+                          description: Borító azonosító (képekhez)
+
+  /works/{work_id}.json:
+    get:
+      summary: Könyv részletes adatainak lekérdezése
+      description: |
+        Egy adott könyv részletes adatainak lekérdezése a könyv egyedi azonosítójával (work_id).
+      parameters:
+        - in: path
+          name: work_id
+          required: true
+          schema:
+            type: string
+          description: A könyv azonosítója (pl. OL12345W)
+      responses:
+        '200':
+          description: Sikeres válasz a könyv részletes adataival
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    description: A könyv címe
+                  description:
+                    type: object
+                    properties:
+                      value:
+                        type: string
+                    description: A könyv rövid leírása
+                  covers:
+                    type: array
+                    items:
+                      type: integer
+                    description: A könyvhöz tartozó borítók azonosítói
+                  subjects:
+                    type: array
+                    items:
+                      type: string
+                    description: Témák, kategóriák
+                  created:
+                    type: object
+                    properties:
+                      value:
+                        type: string
+                        format: date-time
+                    description: Létrehozás dátuma
